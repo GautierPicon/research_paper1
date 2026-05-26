@@ -60,7 +60,7 @@ jobs:
               ERRORS=$((ERRORS + 1))
               continue
             }
-            mv "/tmp/${BASE}.pdf" "NOM_DU_PDF.pdf"
+            mv "/tmp/${BASE}.pdf" "${BASE}.pdf"
           done < <(echo "${{ steps.changed.outputs.files_b64 }}" | base64 -d)
 
           [ $ERRORS -eq 0 ] || exit 1
