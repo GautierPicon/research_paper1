@@ -4,7 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
 \usepackage[margin=2.5cm]{geometry}
-\usepackage[expansion=false]{microtype}
+\usepackage{microtype}
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{graphicx}
@@ -42,8 +42,8 @@
     \vspace{1cm}
 
     {\large
-    \textbf{Auteur :} Gautier Picon\\
-    \textbf{Date :} Juin 2026
+    \textbf Gautier Picon\\
+    \textbf Juin 2026
     }
 
 \end{titlepage}
