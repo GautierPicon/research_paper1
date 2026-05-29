@@ -13,12 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -31,12 +25,19 @@ jobs:
         id: changed
         run: |
           CHANGED=$(git diff --name-only HEAD~1 HEAD | grep '\.lex$' || true)
+          RENAMED_FROM=$(git diff --name-status HEAD~1 HEAD | awk '/^R[0-9]*\t.*\.lex$/ {print $2}' || true)
+
           if [ -z "$CHANGED" ]; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
             ENCODED=$(echo "$CHANGED" | base64 -w 0)
             echo "files_b64=${ENCODED}" >> $GITHUB_OUTPUT
             echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+          if [ -n "$RENAMED_FROM" ]; then
+            ENCODED_OLD=$(echo "$RENAMED_FROM" | base64 -w 0)
+            echo "renamed_from_b64=${ENCODED_OLD}" >> $GITHUB_OUTPUT
           fi
 
       - name: Install LaTeX
@@ -80,14 +81,35 @@ jobs:
           git commit -m "ci: update PDF"
           git push origin HEAD:${{ github.ref_name }}
 
-      - name: Prepare Pages artifact
+      - name: Remove renamed PDFs from gh-pages
+        if: steps.changed.outputs.renamed_from_b64 != ''
+        run: |
+          git fetch origin gh-pages
+          git checkout gh-pages
+          while IFS= read -r OLD_LEX; do
+            [ -z "$OLD_LEX" ] && continue
+            OLD_BASE=$(basename "$OLD_LEX" .lex)
+            rm -f "${OLD_BASE}.pdf"
+          done < <(echo "${{ steps.changed.outputs.renamed_from_b64 }}" | base64 -d)
+          git add -A
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "ci: remove renamed PDF"
+          git push origin gh-pages
+          git checkout ${{ github.ref_name }}
+
+      - name: Deploy to gh-pages
         if: steps.changed.outputs.has_changes == 'true'
         run: |
-          mkdir _site
-          cp *.pdf _site/
-          echo "paper.mondomaine.com" > _site/CNAME
-          PDF_NAME=$(basename "$(ls _site/*.pdf | head -1)")
-          cat > _site/index.html << EOF
+          git fetch origin gh-pages 2>/dev/null || true
+          git checkout gh-pages 2>/dev/null || git checkout --orphan gh-pages
+
+          rm -f *.pdf index.html
+
+          cp *.pdf /tmp/ 2>/dev/null || true
+          cp /tmp/*.pdf . 2>/dev/null || true
+
+          PDF_NAME=$(basename "$(ls *.pdf | head -1)")
+          cat > index.html << EOF
           <!DOCTYPE html>
           <html>
             <head><meta http-equiv="refresh" content="0; url=./${PDF_NAME}"></head>
@@ -95,13 +117,7 @@ jobs:
           </html>
           EOF
 
-      - name: Upload Pages artifact
-        if: steps.changed.outputs.has_changes == 'true'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-      - name: Deploy to GitHub Pages
-        if: steps.changed.outputs.has_changes == 'true'
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git add -A
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "ci: deploy PDF to gh-pages"
+          git push origin gh-pages
