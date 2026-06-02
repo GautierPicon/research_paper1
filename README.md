@@ -6,7 +6,7 @@ This repository contains a research paper written in French on the technological
 
 - Read it online on the website: [https://paper.gautierpicon.com](https://paper.gautierpicon.com)
 - Download it by clicking here: [DOWNLOAD](https://github.com/GautierPicon/research_paper-us_china_rivalry_over_superintelligence/raw/main/Research%20Paper%3A%20USA-China%20Rivalry%20Over%20Superintelligence.pdf)
-- Read it online on the Github repository: [https://github.com/GautierPicon/research_paper1/blob/main/Research%20Paper%3A%20USA-China%20Rivalry%20Over%20Superintelligence.pdf](https://github.com/GautierPicon/research_paper1/blob/main/Research%20Paper%3A%20USA-China%20Rivalry%20Over%20Superintelligence.pdf)
+- Read it online on the Github repository: [./Research Paper: USA-China Rivalry Over Superintelligence.pdf](<./Research Paper: USA-China Rivalry Over Superintelligence.pdf>)
 
 ## Contributing to the projet
 
