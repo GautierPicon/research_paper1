@@ -70,6 +70,15 @@ jobs:
           done < <(echo "${{ steps.changed.outputs.files_b64 }}" | base64 -d)
           [ $ERRORS -eq 0 ] || exit 1
 
+      - name: Clean LaTeX build artifacts
+        if: steps.changed.outputs.has_changes == 'true'
+        run: |
+          find . -not -path "./.git/*" \( \
+            -name "*.aux" -o -name "*.log" -o -name "*.out" \
+            -o -name "*.fls" -o -name "*.fdb_latexmk" \
+            -o -name "*.synctex.gz" -o -name "*.toc" \
+          \) -delete
+
       - name: Remove renamed PDFs from gh-pages
         if: steps.changed.outputs.renamed_from_b64 != ''
         run: |
