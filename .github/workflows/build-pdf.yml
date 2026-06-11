@@ -101,6 +101,7 @@ jobs:
           mkdir /tmp/pdfs
           find . -name "*.pdf" -not -path "./.git/*" -exec cp {} /tmp/pdfs/ \;
 
+          git stash
           git fetch origin gh-pages
           git checkout gh-pages
 
