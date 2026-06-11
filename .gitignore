@@ -18,3 +18,5 @@
 *.vrb
 
 /build
+
+.DS_Store
